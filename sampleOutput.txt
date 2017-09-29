@@ -1,0 +1,34 @@
+Luiss-MacBook-Pro:turtleHomework luisschubert$ node turtlePath2FoodFinder.js
+bfs: 91991.270ms
+solution found
+22
+^
+|
+21
+^
+|
+31
+^
+|
+30
+^
+|
+40
+^
+|
+50
+^
+|
+51
+^
+|
+61
+^
+|
+62
+^
+|
+63
+^
+|
+53
