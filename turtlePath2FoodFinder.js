@@ -6,7 +6,7 @@ class Node{
     }
 }
 
-var specialPiecesMap = {
+let specialPiecesMap = {
     "00": ["D", "R"],
     "01": ["D", "L", "R"],
     "02": ["D", "L", "R"],
@@ -54,23 +54,23 @@ var specialPiecesMap = {
 }
 
 function computePosition(location, action){
-    var locationArr = location.split('');
-    var row = locationArr[0];
-    var col = locationArr[1];
+    let locationArr = location.split('');
+    let row = locationArr[0];
+    let col = locationArr[1];
     if (action === "U"){
-        var newRow = parseInt(row) - 1;
+        let newRow = parseInt(row) - 1;
         return newRow.toString().concat(col);
     }
     else if (action === "D"){
-        var newRow = parseInt(row) + 1;
+        let newRow = parseInt(row) + 1;
         return newRow.toString().concat(col);
     }
     else if (action === "R"){
-        var newCol = parseInt(col) + 1;
+        let newCol = parseInt(col) + 1;
         return row.concat(newCol.toString());
     }
     else if (action === "L"){
-        var newCol = parseInt(col) - 1;
+        let newCol = parseInt(col) - 1;
         return row.concat(newCol.toString());
     }
     else{
@@ -79,15 +79,15 @@ function computePosition(location, action){
 }
 
 function computeChildNodes(node){
-    var moves = ["U","D","L","R"];
-    var childNodes =[];
+    let moves = ["U","D","L","R"];
+    let childNodes =[];
     if (specialPiecesMap.hasOwnProperty(node.value)){
         moves = specialPiecesMap[node.value]
     }
-    for(var move of moves){
+    for(let move of moves){
         // console.log(`move:${move}`)
-        var positionValue = computePosition(node.value, move);
-        var positionNode = new Node(positionValue, node, []);
+        let positionValue = computePosition(node.value, move);
+        let positionNode = new Node(positionValue, node, []);
         // console.log(`positionNode:${JSON.stringify(positionNode)}`)
         childNodes.push(positionNode);
     }
@@ -96,19 +96,51 @@ function computeChildNodes(node){
 
 function drawPath(node){
     if(node.parent !== null){
-        console.log(node.value);
-        console.log("^")
-        console.log("|")
+        let action = coordinatesToAction(node.parent.value, node.value);
+        console.log(coordinateToString(node.value));
+        console.log("^");
+        console.log("|");
+        console.log(`| ${action}`);
+        console.log("|");
         drawPath(node.parent);
     }
     else{
-        console.log(node.value);
+        console.log(coordinateToString(node.value));
+    }
+}
+
+function coordinateToString(coordinate){
+    let c = coordinate.split('');
+    return `row:${c[0]} col: ${c[1]}`
+}
+
+function coordinatesToAction(start,end){
+    start = parseInt(start)
+    end = parseInt(end)
+    //end is start + 10
+    if((start+10) == end){
+        return "Down"
+    }
+    //end is start - 10
+    else if((start-10) == end){
+        return "Up"
+    }
+    //end is start + 1
+    else if((start+1) == end){
+        return "Right"
+    }
+    //end is start -1
+    else if((start-1) == end){
+        return "Left"
+    }
+    else{
+        return "This shouldn't happen"
     }
 }
 
 function breadthfirstsearch(node, goalValue){
-    var frontiered = []
-    var explored = []
+    let frontiered = []
+    let explored = []
     if(node.value === goalValue){
         return node;
     }
@@ -117,7 +149,7 @@ function breadthfirstsearch(node, goalValue){
         while(frontiered.length != 0){
             // console.log(`frontiered: ${frontiered}`);
             // console.log(`explored: ${explored}`);
-            var testNode = frontiered.shift();
+            let testNode = frontiered.shift();
             explored.push(testNode);
             // console.log(testNode);
             //test If goal
@@ -125,9 +157,9 @@ function breadthfirstsearch(node, goalValue){
                 return testNode;
             }
             else{
-                var children = computeChildNodes(testNode);
+                let children = computeChildNodes(testNode);
                 // console.log(`children: ${JSON.stringify(children)}`)
-                for(var child of children){
+                for(let child of children){
                     frontiered.push(child);
                 }
             }
@@ -138,11 +170,11 @@ function breadthfirstsearch(node, goalValue){
 
 
 ///PROGRAM START
-var start = new Node("53", null, []);
-var goal = "22"
+let start = new Node("53", null, []);
+let goal = "22"
 
 console.time('bfs');
-var successnode = breadthfirstsearch(start,goal);
+let successnode = breadthfirstsearch(start,goal);
 console.timeEnd('bfs');
 console.log('solution found');
 

@@ -1,34 +1,54 @@
 Luiss-MacBook-Pro:turtleHomework luisschubert$ node turtlePath2FoodFinder.js
-bfs: 91991.270ms
+bfs: 97406.959ms
 solution found
-22
+row:2 col: 2
 ^
 |
-21
+| Right
+|
+row:2 col: 1
 ^
 |
-31
+| Up
+|
+row:3 col: 1
 ^
 |
-30
+| Right
+|
+row:3 col: 0
 ^
 |
-40
+| Up
+|
+row:4 col: 0
 ^
 |
-50
+| Up
+|
+row:5 col: 0
 ^
 |
-51
+| Left
+|
+row:5 col: 1
 ^
 |
-61
+| Up
+|
+row:6 col: 1
 ^
 |
-62
+| Left
+|
+row:6 col: 2
 ^
 |
-63
+| Left
+|
+row:6 col: 3
 ^
 |
-53
+| Down
+|
+row:5 col: 3
