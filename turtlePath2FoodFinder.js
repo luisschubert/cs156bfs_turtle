@@ -1,11 +1,16 @@
+//The Node class used to represent paths in the puzzles.
 class Node{
-    constructor(value, parent, children){
+    constructor(value, parent, children, pathcost){
         this.value = value;
         this.parent = parent;
         this.children = children;
+        this.pathcost = pathcost;
     }
 }
 
+//This object represents the legal moves you can make at squares where not all 4 are possible.
+//The key represents the col and row of a piece as a string. "45" = row:4, col:5
+//The value represents the available moves as a list. "D" = Down, "L" = Left...
 let specialPiecesMap = {
     "00": ["D", "R"],
     "01": ["D", "L", "R"],
@@ -53,6 +58,8 @@ let specialPiecesMap = {
     "77": ["U", "L"],
 }
 
+//given a location as a string and the action the resulting location is returned
+//ex: location= "45", action= "U" => "35"
 function computePosition(location, action){
     let locationArr = location.split('');
     let row = locationArr[0];
@@ -78,22 +85,23 @@ function computePosition(location, action){
     }
 }
 
+//given a node the childNodes are computed
 function computeChildNodes(node){
     let moves = ["U","D","L","R"];
-    let childNodes =[];
+    let childNodes = [];
     if (specialPiecesMap.hasOwnProperty(node.value)){
         moves = specialPiecesMap[node.value]
     }
+    //for each available move calculate the according new location
     for(let move of moves){
-        // console.log(`move:${move}`)
         let positionValue = computePosition(node.value, move);
-        let positionNode = new Node(positionValue, node, []);
-        // console.log(`positionNode:${JSON.stringify(positionNode)}`)
+        let positionNode = new Node(positionValue, node, [], node.pathcost + 1);
         childNodes.push(positionNode);
     }
     return childNodes;
 }
 
+//draws the path from a given node back to the start.
 function drawPath(node){
     if(node.parent !== null){
         let action = coordinatesToAction(node.parent.value, node.value);
@@ -109,11 +117,13 @@ function drawPath(node){
     }
 }
 
+//computes the coordinates for a given string representing a location
 function coordinateToString(coordinate){
     let c = coordinate.split('');
     return `row:${c[0]} col: ${c[1]}`
 }
 
+//determine what action was taken when comparing two nodes
 function coordinatesToAction(start,end){
     start = parseInt(start)
     end = parseInt(end)
@@ -134,75 +144,14 @@ function coordinatesToAction(start,end){
         return "Left"
     }
     else{
-        return "This shouldn't happen"
+        return "No action can connect these positions."
     }
 }
 
-function breadthfirstsearch(node, goalValue){
-    let frontiered = []
-    let explored = []
-    if(node.value === goalValue){
-        return node;
-    }
-    else{
-        frontiered.push(node);
-        while(frontiered.length != 0){
-            // console.log(`frontiered: ${frontiered}`);
-            // console.log(`explored: ${explored}`);
-            let testNode = frontiered.shift();
-            explored.push(testNode);
-            // console.log(testNode);
-            //test If goal
-            if(testNode.value === goalValue){
-                return testNode;
-            }
-            else{
-                let children = computeChildNodes(testNode);
-                // console.log(`children: ${JSON.stringify(children)}`)
-                for(let child of children){
-                    frontiered.push(child);
-                }
-            }
-        }
-    }
-}
-
-function breadthfirstsearchANAL(node, goalValue){
+//search first for some breath and then go ahead and search the tree, breadth first. #joke
+function breadthfirstsearch_Analyzed(node, goalValue){
     console.log("analyzation of algorithm")
-    let mapOfExploration = {}
-    let frontiered = []
-    let explored = []
-    if(node.value === goalValue){
-        return node;
-    }
-    else{
-        frontiered.push(node);
-        while(frontiered.length != 0){
-            let testNode = frontiered.shift();
-            if(!mapOfExploration.hasOwnProperty(testNode.value)){
-                mapOfExploration[testNode.value] = 1
-            }else{
-                mapOfExploration[testNode.value] = mapOfExploration[testNode.value] + 1
-            }
-            explored.push(testNode);
-            //test If goal
-            if(testNode.value === goalValue){
-                console.log('map of exploration is:')
-                console.log(mapOfExploration);
-                return testNode;
-            }
-            else{
-                let children = computeChildNodes(testNode);
-                for(let child of children){
-                    frontiered.push(child);
-                }
-            }
-        }
-    }
-}
-
-function breadthfirstsearchANAL_Improved(node, goalValue){
-    console.log("analyzation of algorithm")
+    // stores how many times was each position was visited
     let mapOfExploration = {}
     let frontiered = []
     let explored = []
@@ -219,7 +168,7 @@ function breadthfirstsearchANAL_Improved(node, goalValue){
                 mapOfExploration[testNode.value] = mapOfExploration[testNode.value] + 1
             }
             explored.push(testNode.value);
-            //test If goal
+            //test if currentNode is the goal
             if(testNode.value === goalValue){
                 console.log('map of exploration is:');
                 console.log(mapOfExploration);
@@ -228,7 +177,8 @@ function breadthfirstsearchANAL_Improved(node, goalValue){
             else{
                 let children = computeChildNodes(testNode);
                 for(let child of children){
-                    if(!checkForMatch(frontiered, child.value) && !checkForMatch(explored, child.value)){
+                    //check if the node is not already present in frontiered or explored
+                    if(!containsMatch(frontiered, child) && !containsMatch(explored, child)){
                         frontiered.push(child);
                     }
                 }
@@ -237,9 +187,50 @@ function breadthfirstsearchANAL_Improved(node, goalValue){
     }
 }
 
-function checkForMatch(list, value){
-    for (item of list){
-        if(item.value == value){
+//search first for some breath and then go ahead and search the tree, breadth first. #joke
+function breadthfirstsearch(node, goalValue){
+    let frontiered = []
+    let explored = []
+    //if start is goal return start
+    if(node.value === goalValue){
+        //return the node
+        return node;
+    }
+    else{
+        frontiered.push(node);
+        //if frontiered
+        while(frontiered.length != 0){
+            //pop a node of the frontiered queue
+            let testNode = frontiered.shift();
+            //add the node to the explored list
+            explored.push(testNode.value);
+            //test if testNode is goal
+            if(testNode.value === goalValue){
+                //return the node
+                return testNode;
+            }
+            else{
+                //expand the node
+                let children = computeChildNodes(testNode);
+                //iterate of expanded nodes
+                for(let child of children){
+                    //check if the node is not already present in frontiered or explored
+                    if(!containsMatch(frontiered, child) && !containsMatch(explored, child)){
+                        //add node to frontiered
+                        frontiered.push(child);
+                    }
+                }
+            }
+        }
+    }
+    return "No path found!"
+}
+
+//returns true if there is a match else returns false
+function containsMatch(nodeList, matchNode){
+    for (node of nodeList){
+        //nodes are equal if the value and the pathcost are equal
+        if(node.value == matchNode.value && node.pathcost == matchNode.pathcost){
             return true;
         }
     }
@@ -248,12 +239,16 @@ function checkForMatch(list, value){
 
 
 ///PROGRAM START
-let start = new Node("53", null, []);
-let goal = "22"
+let start = new Node("53", null, [], 0);
+let goal = "33"
 
 console.time('bfs');
-let successnode = breadthfirstsearchANAL_Improved(start,goal);
+let successnode = breadthfirstsearch(start,goal);
 console.timeEnd('bfs');
-console.log('solution found');
-
-drawPath(successnode);
+if(successnode === "No path found!"){
+    console.log(successnode)
+}
+else {
+    console.log('solution found');
+    drawPath(successnode);
+}
