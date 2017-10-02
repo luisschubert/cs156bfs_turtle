@@ -240,7 +240,7 @@ function containsMatch(nodeList, matchNode){
 
 ///PROGRAM START
 let start = new Node("53", null, [], 0);
-let goal = "33"
+let goal = "22"
 
 console.time('bfs');
 let successnode = breadthfirstsearch(start,goal);
